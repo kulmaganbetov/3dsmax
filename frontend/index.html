@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Параметрическое моделирование архитектуры | Three.js</title>
+    <meta name="description" content="Веб-приложение для параметрического моделирования сложных архитектурных объектов с экспортом в 3ds Max">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Панель управления параметрами -->
+        <aside id="controls-panel" class="panel">
+            <header class="panel-header">
+                <h1>Параметрическое моделирование</h1>
+                <p class="subtitle">Архитектурные объекты</p>
+            </header>
+
+            <!-- Вкладки -->
+            <nav class="tabs">
+                <button class="tab active" data-tab="dimensions">Размеры</button>
+                <button class="tab" data-tab="facade">Фасад</button>
+                <button class="tab" data-tab="windows">Окна</button>
+                <button class="tab" data-tab="roof">Крыша</button>
+                <button class="tab" data-tab="extras">Доп.</button>
+            </nav>
+
+            <!-- Размеры -->
+            <section class="tab-content active" id="tab-dimensions">
+                <div class="control-group">
+                    <label for="width">Ширина здания (м)</label>
+                    <input type="range" id="width" min="5" max="100" value="20" step="1">
+                    <span class="value-display" id="width-value">20</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="length">Длина здания (м)</label>
+                    <input type="range" id="length" min="5" max="100" value="30" step="1">
+                    <span class="value-display" id="length-value">30</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="floorHeight">Высота этажа (м)</label>
+                    <input type="range" id="floorHeight" min="2.5" max="6" value="3" step="0.1">
+                    <span class="value-display" id="floorHeight-value">3</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="floorsCount">Количество этажей</label>
+                    <input type="range" id="floorsCount" min="1" max="50" value="5" step="1">
+                    <span class="value-display" id="floorsCount-value">5</span>
+                </div>
+            </section>
+
+            <!-- Фасад -->
+            <section class="tab-content" id="tab-facade">
+                <div class="control-group">
+                    <label for="facadeType">Тип фасада</label>
+                    <select id="facadeType">
+                        <option value="modern">Современный</option>
+                        <option value="classic">Классический</option>
+                        <option value="minimalist">Минималистичный</option>
+                        <option value="industrial">Индустриальный</option>
+                        <option value="glass">Стеклянный</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="facadeColor">Цвет фасада</label>
+                    <input type="color" id="facadeColor" value="#CCCCCC">
+                </div>
+            </section>
+
+            <!-- Окна -->
+            <section class="tab-content" id="tab-windows">
+                <div class="control-group">
+                    <label for="windowStyle">Стиль окон</label>
+                    <select id="windowStyle">
+                        <option value="rectangular">Прямоугольные</option>
+                        <option value="arched">Арочные</option>
+                        <option value="panoramic">Панорамные</option>
+                        <option value="french">Французские</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="windowWidth">Ширина окна (м)</label>
+                    <input type="range" id="windowWidth" min="0.5" max="5" value="1.5" step="0.1">
+                    <span class="value-display" id="windowWidth-value">1.5</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="windowHeight">Высота окна (м)</label>
+                    <input type="range" id="windowHeight" min="0.5" max="4" value="1.8" step="0.1">
+                    <span class="value-display" id="windowHeight-value">1.8</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="windowsPerFloor">Окон на этаж</label>
+                    <input type="range" id="windowsPerFloor" min="1" max="30" value="6" step="1">
+                    <span class="value-display" id="windowsPerFloor-value">6</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="windowColor">Цвет рамы</label>
+                    <input type="color" id="windowColor" value="#333333">
+                </div>
+
+                <div class="control-group">
+                    <label for="glassColor">Цвет стекла</label>
+                    <input type="color" id="glassColor" value="#87CEEB">
+                </div>
+
+                <div class="control-group">
+                    <label for="glassOpacity">Прозрачность стекла</label>
+                    <input type="range" id="glassOpacity" min="0" max="1" value="0.3" step="0.05">
+                    <span class="value-display" id="glassOpacity-value">0.3</span>
+                </div>
+            </section>
+
+            <!-- Крыша -->
+            <section class="tab-content" id="tab-roof">
+                <div class="control-group">
+                    <label for="roofType">Тип крыши</label>
+                    <select id="roofType">
+                        <option value="flat">Плоская</option>
+                        <option value="pitched">Скатная</option>
+                        <option value="hip">Вальмовая</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="roofColor">Цвет крыши</label>
+                    <input type="color" id="roofColor" value="#555555">
+                </div>
+
+                <div class="control-group" id="roofHeightGroup">
+                    <label for="roofHeight">Высота крыши (м)</label>
+                    <input type="range" id="roofHeight" min="0" max="10" value="2" step="0.5">
+                    <span class="value-display" id="roofHeight-value">2</span>
+                </div>
+            </section>
+
+            <!-- Дополнительно -->
+            <section class="tab-content" id="tab-extras">
+                <div class="control-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="hasBalconies">
+                        Добавить балконы
+                    </label>
+                </div>
+
+                <div class="control-group" id="balconyDepthGroup" style="display: none;">
+                    <label for="balconyDepth">Глубина балкона (м)</label>
+                    <input type="range" id="balconyDepth" min="0.5" max="3" value="1.5" step="0.1">
+                    <span class="value-display" id="balconyDepth-value">1.5</span>
+                </div>
+
+                <div class="control-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="hasEntrance" checked>
+                        Входная группа
+                    </label>
+                </div>
+
+                <div class="control-group" id="entranceWidthGroup">
+                    <label for="entranceWidth">Ширина входа (м)</label>
+                    <input type="range" id="entranceWidth" min="2" max="10" value="4" step="0.5">
+                    <span class="value-display" id="entranceWidth-value">4</span>
+                </div>
+            </section>
+
+            <!-- Кнопки экспорта -->
+            <section class="export-section">
+                <h3>Экспорт модели</h3>
+                <div class="export-buttons">
+                    <button id="exportOBJ" class="btn btn-export">
+                        <span class="icon">📦</span>
+                        Экспорт OBJ
+                    </button>
+                    <button id="exportGLTF" class="btn btn-export">
+                        <span class="icon">📦</span>
+                        Экспорт GLTF
+                    </button>
+                </div>
+
+                <div class="save-section">
+                    <input type="text" id="projectName" placeholder="Название проекта">
+                    <button id="saveProject" class="btn btn-primary">
+                        Сохранить проект
+                    </button>
+                </div>
+            </section>
+
+            <!-- Информация о модели -->
+            <section class="info-section">
+                <h3>Информация о модели</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Высота здания:</span>
+                        <span class="info-value" id="totalHeight">15 м</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Вершин:</span>
+                        <span class="info-value" id="verticesCount">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Граней:</span>
+                        <span class="info-value" id="facesCount">0</span>
+                    </div>
+                </div>
+            </section>
+        </aside>
+
+        <!-- 3D Viewport -->
+        <main id="viewport">
+            <canvas id="canvas"></canvas>
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Генерация модели...</p>
+            </div>
+        </main>
+
+        <!-- Информационная панель -->
+        <aside id="info-panel" class="panel-right">
+            <div class="camera-controls">
+                <h4>Управление камерой</h4>
+                <button class="btn btn-small" id="resetCamera">Сбросить вид</button>
+                <button class="btn btn-small" id="topView">Вид сверху</button>
+                <button class="btn btn-small" id="frontView">Вид спереди</button>
+            </div>
+        </aside>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

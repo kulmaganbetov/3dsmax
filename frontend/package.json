@@ -1,0 +1,30 @@
+{
+  "name": "parametric-architecture-frontend",
+  "version": "1.0.0",
+  "description": "Веб-приложение для параметрического моделирования архитектурных объектов",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "three": "^0.159.0",
+    "axios": "^1.6.2"
+  },
+  "devDependencies": {
+    "@types/three": "^0.159.0",
+    "typescript": "^5.3.2",
+    "vite": "^5.0.6"
+  },
+  "keywords": [
+    "three.js",
+    "parametric",
+    "architecture",
+    "3d-modeling",
+    "webgl"
+  ],
+  "author": "",
+  "license": "MIT"
+}

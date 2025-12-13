@@ -1,0 +1,22 @@
+# Django и основные зависимости
+Django==4.2.7
+djangorestframework==3.14.0
+django-cors-headers==4.3.0
+djangorestframework-simplejwt==5.3.0
+
+# База данных
+psycopg2-binary==2.9.9
+
+# Документация API
+drf-yasg==1.21.7
+
+# Валидация и сериализация
+django-filter==23.3
+
+# Хранение файлов
+django-storages==1.14.2
+Pillow==10.1.0
+
+# Утилиты
+python-dotenv==1.0.0
+gunicorn==21.2.0
