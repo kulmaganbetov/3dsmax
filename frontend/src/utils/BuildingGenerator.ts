@@ -193,24 +193,25 @@ export class BuildingGenerator {
         const { width, length, floorHeight, floorsCount } = this.params.dimensions;
         const totalHeight = floorHeight * floorsCount;
 
-        // Стеклянный фасад
+        // Стеклянный фасад - светлый голубой цвет для видимости
         this.glassMaterial = new THREE.MeshStandardMaterial({
-            color: '#4A90A4',
+            color: '#87CEEB',
             transparent: true,
-            opacity: 0.7,
-            roughness: 0.05,
-            metalness: 0.9,
+            opacity: 0.6,
+            roughness: 0.1,
+            metalness: 0.3,
             side: THREE.DoubleSide,
+            envMapIntensity: 0.5,
         });
 
         // Основной стеклянный корпус
         this.createWallBox(0, 0, 0, width, totalHeight, length, this.glassMaterial);
 
-        // Металлический каркас
+        // Металлический каркас - светлый для контраста
         const frameColor = new THREE.MeshStandardMaterial({
-            color: '#2C3E50',
-            roughness: 0.3,
-            metalness: 0.8,
+            color: '#4A5568',
+            roughness: 0.4,
+            metalness: 0.6,
         });
 
         // Вертикальные ребра
@@ -988,10 +989,19 @@ export class BuildingGenerator {
         door.position.set(x, entranceHeight / 2, -0.2);
         this.buildingGroup.add(door);
 
-        // Ступени
-        for (let i = 0; i < 5; i++) {
-            this.createBox(x, 0.1 + i * 0.15, -porticoDepth - 0.5 - i * 0.3,
-                entranceWidth + 3 - i * 0.2, 0.2, 0.3, this.accentMaterial);
+        // Ступени - идут от земли вверх к входу
+        const stepCount = 5;
+        const stepHeight = 0.18;
+        const stepDepth = 0.35;
+        const startZ = -porticoDepth - stepCount * stepDepth;
+
+        for (let i = 0; i < stepCount; i++) {
+            // Каждая ступень выше предыдущей и ближе к двери
+            const stepY = (i + 1) * stepHeight / 2;
+            const stepZ = startZ + i * stepDepth + stepDepth / 2;
+            const stepWidth = entranceWidth + 2 - i * 0.1;
+
+            this.createBox(x, stepY, stepZ, stepWidth, (i + 1) * stepHeight, stepDepth, this.accentMaterial);
         }
     }
 
@@ -1178,32 +1188,69 @@ export class BuildingGenerator {
         mainWidth: number, wingWidth: number,
         length: number, wingLength: number, height: number
     ): void {
-        const roofHeight = 2;
-        const overhang = 0.6;
+        const roofHeight = 2.5;
+        const overhang = 0.8;
 
-        // Крыша основного блока
-        const mainRoofShape = new THREE.Shape();
-        mainRoofShape.moveTo(-overhang, 0);
-        mainRoofShape.lineTo(mainWidth / 2, roofHeight);
-        mainRoofShape.lineTo(mainWidth + overhang, 0);
-        mainRoofShape.closePath();
+        // Крыша основного блока - двускатная
+        // Используем BufferGeometry для точного контроля позиции
+        const roofVertices = new Float32Array([
+            // Передний скат (левая часть)
+            -overhang, 0, -overhang,
+            mainWidth / 2, roofHeight, -overhang,
+            -overhang, 0, length + overhang,
+            mainWidth / 2, roofHeight, length + overhang,
 
-        const mainRoofGeom = new THREE.ExtrudeGeometry(mainRoofShape, {
-            depth: length + overhang * 2,
-            bevelEnabled: false,
-        });
-        mainRoofGeom.rotateX(Math.PI / 2);
+            // Передний скат (правая часть)
+            mainWidth / 2, roofHeight, -overhang,
+            mainWidth + overhang, 0, -overhang,
+            mainWidth / 2, roofHeight, length + overhang,
+            mainWidth + overhang, 0, length + overhang,
+        ]);
 
-        const mainRoof = new THREE.Mesh(mainRoofGeom, this.roofMaterial);
-        mainRoof.position.set(0, height, length + overhang);
+        const roofIndices = [
+            // Левый скат
+            0, 2, 1,
+            1, 2, 3,
+            // Правый скат
+            4, 6, 5,
+            5, 6, 7,
+        ];
+
+        const roofGeometry = new THREE.BufferGeometry();
+        roofGeometry.setAttribute('position', new THREE.BufferAttribute(roofVertices, 3));
+        roofGeometry.setIndex(roofIndices);
+        roofGeometry.computeVertexNormals();
+
+        const mainRoof = new THREE.Mesh(roofGeometry, this.roofMaterial);
+        mainRoof.position.y = height;
         mainRoof.castShadow = true;
         this.buildingGroup.add(mainRoof);
 
-        // Крыша крыла (односкатная)
-        const wingRoofGeom = new THREE.BoxGeometry(wingWidth + 0.5, 0.2, wingLength + 0.5);
+        // Фронтоны (треугольные торцы)
+        const gableShape = new THREE.Shape();
+        gableShape.moveTo(0, 0);
+        gableShape.lineTo(mainWidth, 0);
+        gableShape.lineTo(mainWidth / 2, roofHeight);
+        gableShape.closePath();
+
+        const gableGeom = new THREE.ShapeGeometry(gableShape);
+
+        // Передний фронтон
+        const frontGable = new THREE.Mesh(gableGeom, this.facadeMaterial);
+        frontGable.position.set(0, height, -overhang + 0.01);
+        this.buildingGroup.add(frontGable);
+
+        // Задний фронтон
+        const backGable = new THREE.Mesh(gableGeom, this.facadeMaterial);
+        backGable.position.set(mainWidth, height, length + overhang - 0.01);
+        backGable.rotation.y = Math.PI;
+        this.buildingGroup.add(backGable);
+
+        // Крыша крыла (плоская с небольшим наклоном)
+        const wingRoofGeom = new THREE.BoxGeometry(wingWidth + 0.6, 0.25, wingLength + 0.6);
         const wingRoof = new THREE.Mesh(wingRoofGeom, this.roofMaterial);
-        wingRoof.position.set(mainWidth + wingWidth / 2, height * 0.8 + 0.1, length - wingLength / 2);
-        wingRoof.rotation.z = -0.15;
+        wingRoof.position.set(mainWidth + wingWidth / 2 - 0.05, height * 0.8 + 0.15, length - wingLength / 2);
+        wingRoof.rotation.z = -0.08;
         wingRoof.castShadow = true;
         this.buildingGroup.add(wingRoof);
     }
