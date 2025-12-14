@@ -8,8 +8,9 @@
  */
 
 import './styles/main.css';
+import * as THREE from 'three';
 import { SceneManager } from './utils/SceneManager';
-import { BuildingGenerator } from './utils/BuildingGenerator';
+import { BuildingGenerator, BuildingType } from './utils/BuildingGenerator';
 import { ModelExporter } from './utils/ModelExporter';
 import { apiClient } from './utils/ApiClient';
 import {
@@ -137,6 +138,15 @@ class App {
      * Инициализация обработчиков событий
      */
     private initEventListeners(): void {
+        // Тип здания
+        const buildingTypeSelect = document.getElementById('buildingType') as HTMLSelectElement;
+        if (buildingTypeSelect) {
+            buildingTypeSelect.addEventListener('change', () => {
+                this.buildingGenerator.setBuildingType(buildingTypeSelect.value as BuildingType);
+                this.scheduleRegenerate();
+            });
+        }
+
         // Размеры
         this.bindRangeInput('width', (v) => {
             this.params.dimensions.width = v;

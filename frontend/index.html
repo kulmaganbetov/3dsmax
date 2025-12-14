@@ -30,6 +30,16 @@
             <!-- Размеры -->
             <section class="tab-content active" id="tab-dimensions">
                 <div class="control-group">
+                    <label for="buildingType">Тип здания</label>
+                    <select id="buildingType">
+                        <option value="residential">Жилой дом</option>
+                        <option value="skyscraper">Офисная башня</option>
+                        <option value="mansion">Классический особняк</option>
+                        <option value="cottage">Современный коттедж</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
                     <label for="width">Ширина здания (м)</label>
                     <input type="range" id="width" min="5" max="100" value="20" step="1">
                     <span class="value-display" id="width-value">20</span>
